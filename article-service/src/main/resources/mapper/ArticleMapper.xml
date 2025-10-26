@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.linshiyi.article.mapper.ArticleMapper">
+
+
+    <insert id="insert" parameterType="com.linshiyi.article.domain.po.Article" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO article (title, summary, author_id, category_id, cover_image, view_count, comment_count, status,
+                             is_deleted, is_top)
+        VALUES (#{title}, #{summary}, #{authorId}, #{categoryId}, #{coverImage}, #{viewCount}, #{commentCount},
+                #{status}, #{isDeleted}, #{isTop})
+    </insert>
+    <update id="update">
+        UPDATE article
+        <set>
+            <if test="title != null and title != ''">
+                title = #{title},
+            </if>
+            <if test="summary != null and summary != ''">
+                summary = #{summary},
+            </if>
+            <if test="categoryId != null ">
+                category_id = #{categoryId},
+            </if>
+            <if test="coverImage != null and coverImage != ''">
+                cover_image = #{coverImage}
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    <select id="selectById" resultType="com.linshiyi.article.domain.po.Article">
+        SELECT id,title,summary,category_id,cover_image FROM article WHERE id = #{id}
+    </select>
+</mapper>

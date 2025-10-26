@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.linshiyi.comment.mapper.CommentLikeMapper">
+    <insert id="insert">
+        INSERT INTO comment_like (comment_id, user_id) VALUES (#{commentId}, #{userId})
+    </insert>
+    <update id="update">
+        UPDATE comment_like SET status = #{status} WHERE comment_id = #{commentId} AND user_id = #{userId}
+    </update>
+
+    <select id="selectByCommentId" resultType="com.linshiyi.comment.domain.po.CommentLike">
+        SELECT id,comment_id,user_id,status FROM comment_like WHERE comment_id = #{commentId}
+    </select>
+    <select id="isCommentLikedByUser" resultType="java.lang.Boolean">
+        SELECT (status = 0) AS likeStatus FROM comment_like WHERE comment_id = #{commentId} AND user_id = #{userId}
+    </select>
+</mapper>

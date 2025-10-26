@@ -1,0 +1,19 @@
+spring:
+  profiles:
+    active: dev
+  application:
+    name: article-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.linshiyi.article.domain
+  configuration:
+    map-underscore-to-camel-case: true
+
+server:
+  servlet:
+    context-path: /article

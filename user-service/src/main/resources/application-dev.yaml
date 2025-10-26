@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/blog_user?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: ******
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+
+server:
+  port: 8081
+
+logging:
+  level:
+    com.linshiyi.user: debug
+    org.mybatis: debug
