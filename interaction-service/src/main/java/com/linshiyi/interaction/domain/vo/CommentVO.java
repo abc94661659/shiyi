@@ -23,8 +23,8 @@ public class CommentVO {
     private Long parentId;
     @Schema(description = "创建时间")
     private LocalDateTime createTime;
-
+    @Schema(description = "子评论")
+    private CommentVO childComment;
     @Schema(description = "子评论总数")
     private Integer childCount;
-
 }

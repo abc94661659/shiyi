@@ -9,11 +9,23 @@
         </foreach>
     </update>
 
-
     <select id="selectByDescendant" resultType="com.linshiyi.interaction.domain.po.CommentClosure">
         SELECT ancestor_id, descendant_id, depth
         FROM comment_closure
         WHERE descendant_id = #{parentId}
+    </select>
+
+    <select id="selectTotalChildCountBatch" resultType="java.util.Map">
+        SELECT cc.ancestor_id, COUNT(cc.descendant_id) as child_count
+        FROM comment_closure cc
+        INNER JOIN comment c ON c.id = cc.descendant_id
+        WHERE cc.ancestor_id IN
+        <foreach item="parentId" collection="list" separator="," open="(" close=")">
+            #{parentId}
+        </foreach>
+        AND cc.depth > 0
+        AND c.is_deleted = 0
+        GROUP BY cc.ancestor_id
     </select>
 
 

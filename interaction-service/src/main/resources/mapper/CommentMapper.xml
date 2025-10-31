@@ -14,5 +14,36 @@
         WHERE id = #{id}
     </select>
 
+    <select id="selectParentComment" resultType="com.linshiyi.interaction.domain.po.Comment">
+        SELECT id,
+               entity_type,
+               entity_id,
+               user_id,
+               parent_id,
+               content,
+               is_deleted,
+               create_time
+        FROM comment
+        WHERE entity_type = #{entityType}
+          AND entity_id = #{entityId}
+          AND parent_id IS NULL
+          AND is_deleted = 0
+        ORDER BY create_time DESC
+    </select>
 
+    <select id="selectFirstChildComment" resultType="com.linshiyi.interaction.domain.po.Comment">
+        SELECT id,
+               entity_type,
+               entity_id,
+               user_id,
+               parent_id,
+               content,
+               is_deleted,
+               create_time
+        FROM comment
+        WHERE parent_id = #{parentId}
+          AND is_deleted = 0
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
 </mapper>

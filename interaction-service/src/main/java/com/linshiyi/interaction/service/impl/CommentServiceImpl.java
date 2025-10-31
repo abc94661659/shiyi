@@ -1,7 +1,6 @@
 package com.linshiyi.interaction.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.linshiyi.common.enums.StatusCodeEnum;
@@ -14,7 +13,6 @@ import com.linshiyi.interaction.domain.po.CommentClosure;
 import com.linshiyi.interaction.domain.vo.CommentVO;
 import com.linshiyi.interaction.mapper.CommentClosureMapper;
 import com.linshiyi.interaction.mapper.CommentMapper;
-import com.linshiyi.interaction.mapper.LikeMapper;
 import com.linshiyi.interaction.service.CommentService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -66,6 +65,54 @@ public class CommentServiceImpl implements CommentService {
         List<CommentClosure> newClosures = getCommentClosures(parentClosures, childId);
 
         commentClosureMapper.batchInsert(newClosures);
+    }
+
+    @Override
+    public PageInfo<CommentVO> queryParentComment(CommentQueryDTO commentQueryDTO) {
+        PageHelper.startPage(commentQueryDTO.getPageNum(), commentQueryDTO.getPageSize());
+        // 查询父级评论
+        List<Comment> parentComment = commentMapper.selectParentComment(commentQueryDTO);
+        PageInfo<Comment> parentCommentPage = new PageInfo<>(parentComment);
+        List<CommentVO> commentVOList = parentComment.stream()
+                .map(this::convertToVO)
+                .collect(Collectors.toList());
+        if (!commentVOList.isEmpty()) {
+            List<Long> parentIds = commentVOList.stream()
+                    .map(CommentVO::getId)
+                    .toList();
+            List<Map<String, Object>> childCountList = commentClosureMapper.selectTotalChildCountBatch(parentIds);
+            Map<Long, Integer> childCountMap = new HashMap<>();
+            for (Map<String, Object> map : childCountList) {
+                Long ancestorId = ((Number) map.get("ancestor_id")).longValue();
+                Integer count = ((Number) map.get("child_count")).intValue();
+                childCountMap.put(ancestorId, count);
+            }
+            // 为每个父评论设置子评论总数和第一条子评论
+            for (CommentVO commentVO : commentVOList) {
+                // 设置子评论总数
+                commentVO.setChildCount(childCountMap.getOrDefault(commentVO.getId(), 0));
+
+                // 查询第一条子评论
+                if (commentVO.getChildCount() > 0) {
+                    Comment firstChild = commentMapper.selectFirstChildComment(commentVO.getId());
+                    if (firstChild != null) {
+                        // TODO
+                        commentVO.setChildComment(convertToVO(firstChild));
+                    }
+                }
+            }
+
+        }
+        PageInfo<CommentVO> resultPage = new PageInfo<>(commentVOList);
+        BeanUtil.copyProperties(parentCommentPage, resultPage, "list");
+        return resultPage;
+    }
+
+
+    private CommentVO convertToVO(Comment comment) {
+        CommentVO vo = new CommentVO();
+        BeanUtil.copyProperties(comment, vo);
+        return vo;
     }
     /**
      * 生成新评论的闭包关系
