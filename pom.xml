@@ -24,6 +24,7 @@
         <module>article-service</module>
         <module>common-service</module>
         <module>gateway-service</module>
+        <module>interaction-service</module>
     </modules>
 
     <properties>
@@ -32,7 +33,7 @@
         <spring-cloud-alibaba.version>2023.0.1.0</spring-cloud-alibaba.version>
         <mybatis.version>3.5.15</mybatis.version>
         <mybatis-spring-boot-starter.version>3.0.3</mybatis-spring-boot-starter.version>
-        <mysql-connector.version>8.2.0</mysql-connector.version>
+        <postgresql.version>42.3.1</postgresql.version>
         <lombok.version>1.18.30</lombok.version>
         <hutool.version>5.8.25</hutool.version>
         <knife4j.version>4.4.0</knife4j.version>
@@ -66,11 +67,11 @@
                 <version>${mybatis-spring-boot-starter.version}</version>
             </dependency>
 
-            <!-- MySQL驱动 -->
+            <!-- PostgreSQL驱动 -->
             <dependency>
-                <groupId>com.mysql</groupId>
-                <artifactId>mysql-connector-j</artifactId>
-                <version>${mysql-connector.version}</version>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
             </dependency>
 
             <!-- Lombok -->

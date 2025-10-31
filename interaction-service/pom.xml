@@ -9,10 +9,10 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>article-service</artifactId>
+    <artifactId>interaction-service</artifactId>
     <version>1.0.0</version>
-    <name>article-service</name>
-    <description>文章管理服务</description>
+    <name>interaction-service</name>
+    <description>互动管理服务</description>
     <properties>
         <java.version>17</java.version>
     </properties>
@@ -53,6 +53,10 @@
             <version>1.0.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+        </dependency>
 
     </dependencies>
 

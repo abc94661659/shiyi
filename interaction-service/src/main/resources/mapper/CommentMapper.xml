@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.linshiyi.interaction.mapper.CommentMapper">
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO  comment (entity_type,entity_id, user_id,content, parent_id )
+        VALUES (#{entityType}, #{entityId}, #{userId}, #{content},#{parentId})
+    </insert>
+
+    <select id="selectById" resultType="com.linshiyi.interaction.domain.po.Comment">
+        SELECT id, entity_type, entity_id, user_id, parent_id, content, is_deleted
+        FROM comment
+        WHERE id = #{id}
+    </select>
+
+
+</mapper>

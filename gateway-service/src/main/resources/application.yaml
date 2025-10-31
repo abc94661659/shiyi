@@ -33,10 +33,10 @@ spring:
             - StripPrefix=0
 
         # 3：评论服务（comment-service）
-        - id: comment-service
-          uri: lb://comment-service
+        - id: interaction-service
+          uri: lb://interaction-service
           predicates:
-            - Path=/comment/**
+            - Path=/interaction/**
           filters:
             - StripPrefix=0
 

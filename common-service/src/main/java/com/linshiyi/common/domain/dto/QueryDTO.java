@@ -1,6 +1,6 @@
 package com.linshiyi.common.domain.dto;
 
-import jakarta.validation.constraints.NotNull;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
@@ -8,11 +8,11 @@ public class QueryDTO {
     /**
      * 页码
      */
-    @NotNull(message = "页码不能为空")
-    private Integer pageNum;
+    @Schema(description = "页码",defaultValue = "1")
+    private Integer pageNum = 1;
     /**
      * 每页条数
      */
-    @NotNull(message = "每页条数不能为空")
-    private Integer pageSize;
+    @Schema(description = "每页条数",defaultValue = "10")
+    private Integer pageSize = 10;
 }

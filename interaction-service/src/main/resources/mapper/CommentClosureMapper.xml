@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.linshiyi.interaction.mapper.CommentClosureMapper">
+    <update id="batchInsert">
+        INSERT INTO comment_closure (ancestor_id, descendant_id, depth)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.ancestorId}, #{item.descendantId}, #{item.depth})
+        </foreach>
+    </update>
+
+
+    <select id="selectByDescendant" resultType="com.linshiyi.interaction.domain.po.CommentClosure">
+        SELECT ancestor_id, descendant_id, depth
+        FROM comment_closure
+        WHERE descendant_id = #{parentId}
+    </select>
+
+
+</mapper>

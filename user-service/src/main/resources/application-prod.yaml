@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://db-server:3306/blog_user?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 10
+      idle-timeout: 600000
+
+server:
+  port: 8081
+
+logging:
+  level:
+    com.linshiyi.user: info
+    root: warn
+  file:
+    name: /var/log/user-service/logs.log
+  logback:
+    rollingpolicy:
+      max-file-size: 100MB
+      max-history: 30
