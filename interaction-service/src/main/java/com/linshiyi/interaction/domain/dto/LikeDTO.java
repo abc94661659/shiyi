@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class CommentLikeDTO {
+public class LikeDTO {
 
     @Schema(description = "实体类型")
     @NotBlank(message = "实体类型不能为空")

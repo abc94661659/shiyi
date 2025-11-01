@@ -1,6 +1,6 @@
 <template>
   <n-loading-bar-provider>
-    <n-message-provider>
+    <n-message-provider :max="2">
       <n-flex>
         <RouterLink to="/">首页</RouterLink> |
         <RouterLink to="/articles/create">创建文章</RouterLink> |
@@ -11,7 +11,7 @@
   </n-loading-bar-provider>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
 import { RouterLink, RouterView } from "vue-router";
 import { createDiscreteApi } from "naive-ui";
 

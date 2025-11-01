@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 @Schema(description = "子评论分页查询参数")
-public class CommentChildQueryDTO extends QueryDTO {
+public class CommentChildQueryDTO extends CommentQueryDTO {
     @Schema(description = "父评论ID")
     @NotNull(message = "父评论ID不能为空")
     private Long parentId;

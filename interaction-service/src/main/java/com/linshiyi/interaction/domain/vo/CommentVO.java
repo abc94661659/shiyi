@@ -27,4 +27,6 @@ public class CommentVO {
     private CommentVO childComment;
     @Schema(description = "子评论总数")
     private Integer childCount;
+    @Schema(description = "当前用户是否点赞")
+    private Boolean isLike;
 }

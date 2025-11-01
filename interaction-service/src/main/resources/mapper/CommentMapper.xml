@@ -46,4 +46,22 @@
         ORDER BY create_time DESC
         LIMIT 1
     </select>
+    <select id="selectChildComment" resultType="com.linshiyi.interaction.domain.po.Comment">
+        SELECT c.id,
+               c.entity_type,
+               c.entity_id,
+               c.user_id,
+               c.parent_id,
+               c.content,
+               c.is_deleted,
+               c.create_time
+        FROM comment c INNER JOIN comment_closure cc on c.id = cc.descendant_id
+        WHERE cc.ancestor_id = #{parentId}
+          AND c.entity_id = #{entityId}
+          AND c.entity_type = #{entityType}
+          AND c.is_deleted = 0
+          AND cc.depth > 0
+        ORDER BY c.create_time DESC
+    </select>
+
 </mapper>

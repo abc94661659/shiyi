@@ -69,7 +69,7 @@ public class ArticleServiceImpl implements ArticleService {
         if (newContent != null && !newContent.trim().isEmpty()) {
             ArticleContent articleContent = articleContentMapper.selectLatestByArticleId(article.getId());
             if (articleContent == null) {
-                throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "文章内容不存在");
+                throw new BusinessException(StatusCodeEnum.NOT_FOUND, "文章内容不存在");
             }
 
             // 内容有变化才更新
@@ -94,7 +94,7 @@ public class ArticleServiceImpl implements ArticleService {
         Article article = articleMapper.selectById(id);
         ArticleContent articleContent = articleContentMapper.selectLatestByArticleId(id);
         if (article == null || articleContent == null) {
-            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "文章不存在");
+            throw new BusinessException(StatusCodeEnum.NOT_FOUND, "文章不存在");
         }
         ArticleVO articleVO = new ArticleVO();
         BeanUtil.copyProperties(article, articleVO);

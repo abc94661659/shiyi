@@ -30,4 +30,11 @@ public interface CommentMapper {
      * @return 子评论
      */
     Comment selectFirstChildComment(@Param("parentId") Long parentId);
+
+    /**
+     * 查询父评论下所有子评论
+     * @param commentQueryDTO 查询参数
+     * @return 子评论
+     */
+    List<Comment> selectChildComment(CommentQueryDTO commentQueryDTO);
 }

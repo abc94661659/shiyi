@@ -2,12 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.linshiyi.interaction.mapper.LikeMapper">
     <insert id="insert">
-        INSERT INTO comment_like (user_id,entity_type,entity_id) VALUES (#{userId}, #{entityType},#{entityId})
+        INSERT INTO "like" (user_id,entity_type,entity_id) VALUES (#{userId}, #{entityType},#{entityId})
     </insert>
     <update id="update">
-        UPDATE comment_like SET is_deleted = #{isDeleted} WHERE user_id = #{userId} AND entity_type = #{entityType} AND entity_id = #{entityId}
+        UPDATE "like" SET is_deleted = #{isDeleted} WHERE user_id = #{userId} AND entity_type = #{entityType} AND entity_id = #{entityId}
     </update>
     <select id="selectByCommentIdAndUserIdAndEntityType" resultType="com.linshiyi.interaction.domain.po.Like">
-        SELECT * FROM comment_like WHERE user_id = #{userId} AND entity_type = #{entityType} AND entity_id = #{entityId}
+        SELECT * FROM "like" WHERE user_id = #{userId} AND entity_type = #{entityType} AND entity_id = #{entityId}
+    </select>
+    <select id="selectBatchLikeStatus" resultType="java.util.Map">
+        SELECT
+        entity_id as "entityId",
+        (is_deleted = 0) as "isLiked"
+        FROM "like"
+        WHERE user_id = #{userId}
+        AND entity_type = #{entityType}
+        AND entity_id IN
+        <foreach collection="entityIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </select>
 </mapper>

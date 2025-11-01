@@ -2,8 +2,10 @@ package com.linshiyi.interaction.controller;
 
 import com.github.pagehelper.PageInfo;
 import com.linshiyi.common.common.Result;
+import com.linshiyi.interaction.domain.dto.CommentChildQueryDTO;
 import com.linshiyi.interaction.domain.dto.CommentCreateDTO;
 import com.linshiyi.interaction.domain.dto.CommentQueryDTO;
+import com.linshiyi.interaction.domain.vo.CommentPageVO;
 import com.linshiyi.interaction.domain.vo.CommentVO;
 import com.linshiyi.interaction.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @Tag(name = "评论服务管理")
 @AllArgsConstructor
+@RequestMapping("/comment")
 public class CommentController {
     private final CommentService commentService;
 
@@ -28,8 +31,15 @@ public class CommentController {
 
     @GetMapping("/queryParentComment")
     @Operation(summary = "查询父级评论")
-    public Result<PageInfo<CommentVO>> queryParentComment(@Valid @ModelAttribute @ParameterObject CommentQueryDTO commentQueryDTO) {
-        PageInfo<CommentVO> pageInfo = commentService.queryParentComment(commentQueryDTO);
-        return Result.success(pageInfo);
+    public Result<CommentPageVO> queryParentComment(@Valid @ModelAttribute @ParameterObject CommentQueryDTO commentQueryDTO) {
+        CommentPageVO commentPageVO = commentService.queryParentComment(commentQueryDTO);
+        return Result.success(commentPageVO);
+    }
+
+    @GetMapping("/queryChildComment")
+    @Operation(summary = "查询子评论")
+    public Result<PageInfo<CommentVO>> queryChildComment(@Valid @ModelAttribute @ParameterObject CommentChildQueryDTO commentChildQueryDTO) {
+        PageInfo<CommentVO> commentVOList = commentService.queryChildComment(commentChildQueryDTO);
+        return Result.success(commentVOList);
     }
 }

@@ -24,7 +24,9 @@ public enum StatusCodeEnum {
     SYSTEM_ERROR(500, "系统繁忙，请稍后再试"),
 
     // 业务自定义错误
+    NOT_FOUND(404, "资源不存在"),
     BUSINESS_ERROR(600, "业务操作失败");
+
 
     /**
      * 状态码
