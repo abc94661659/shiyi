@@ -4,10 +4,8 @@
 
 
     <insert id="insert" parameterType="com.linshiyi.article.domain.po.Article" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO article (title, summary, author_id, category_id, cover_image, view_count, comment_count, status,
-                             is_deleted, is_top)
-        VALUES (#{title}, #{summary}, #{authorId}, #{categoryId}, #{coverImage}, #{viewCount}, #{commentCount},
-                #{status}, #{isDeleted}, #{isTop})
+        INSERT INTO article (title, summary, author_id, category_id, cover_image)
+        VALUES (#{title}, #{summary}, #{authorId}, #{categoryId}, #{coverImage})
     </insert>
     <update id="update">
         UPDATE article
@@ -28,6 +26,16 @@
         WHERE id = #{id}
     </update>
     <select id="selectById" resultType="com.linshiyi.article.domain.po.Article">
-        SELECT id,title,summary,category_id,cover_image FROM article WHERE id = #{id}
+        SELECT id, title, summary, category_id, cover_image
+        FROM article
+        WHERE id = #{id}
+    </select>
+    <select id="selectList" resultType="com.linshiyi.article.domain.po.Article">
+        SELECT id,title,summary,category_id,cover_image,view_count,comment_count,is_top,create_time FROM article
+        <where>
+            <if test="title != null and title != ''">
+                title LIKE CONCAT('%', #{title}, '%')
+            </if>
+        </where>
     </select>
 </mapper>

@@ -1,21 +1,26 @@
 package com.linshiyi.article.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.linshiyi.article.domain.dto.ArticleCreateDTO;
+import com.linshiyi.article.domain.dto.ArticleQueryDTO;
 import com.linshiyi.article.domain.dto.ArticleUpdateDTO;
 import com.linshiyi.article.domain.po.Article;
 import com.linshiyi.article.domain.po.ArticleContent;
+import com.linshiyi.article.domain.vo.ArticleListVO;
 import com.linshiyi.article.domain.vo.ArticleVO;
-import com.linshiyi.article.enums.ArticleStatusEnum;
 import com.linshiyi.article.mapper.ArticleContentMapper;
 import com.linshiyi.article.mapper.ArticleMapper;
 import com.linshiyi.article.service.ArticleService;
 import com.linshiyi.common.enums.StatusCodeEnum;
-import com.linshiyi.common.enums.StatusEnum;
 import com.linshiyi.common.exception.BusinessException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -38,11 +43,6 @@ public class ArticleServiceImpl implements ArticleService {
         }
         Article article = new Article();
         BeanUtil.copyProperties(articleCreateDTO, article);
-        article.setViewCount(0);
-        article.setCommentCount(0);
-        article.setStatus(ArticleStatusEnum.DRAFT.getCode());
-        article.setIsDeleted(StatusEnum.NORMAL.getCode());
-        article.setIsTop(StatusEnum.NORMAL.getCode());
         articleMapper.insert(article);
 
         String markdownContent = articleCreateDTO.getContent();
@@ -64,7 +64,7 @@ public class ArticleServiceImpl implements ArticleService {
         // 1. 更新文章主表信息
         BeanUtil.copyProperties(articleUpdateDTO, article);
 
-        // 2. 处理文章内容（含Markdown转HTML）
+        // 2. 处理文章内容
         String newContent = articleUpdateDTO.getContent();
         if (newContent != null && !newContent.trim().isEmpty()) {
             ArticleContent articleContent = articleContentMapper.selectLatestByArticleId(article.getId());
@@ -100,6 +100,24 @@ public class ArticleServiceImpl implements ArticleService {
         BeanUtil.copyProperties(article, articleVO);
         articleVO.setContent(articleContent.getContent());
 
+        return articleVO;
+    }
+
+    @Override
+    public PageInfo<ArticleListVO> getArticleList(ArticleQueryDTO articleQueryDTO) {
+        PageHelper.startPage(articleQueryDTO.getPageNum(), articleQueryDTO.getPageSize());
+        Page<Article> articlePage = (Page<Article>) articleMapper.selectList(articleQueryDTO);
+        List<ArticleListVO> articleVOList = articlePage.stream()
+                .map(this::convertToVO)
+                .toList();
+        PageInfo<ArticleListVO> resultPage = new PageInfo<>(articleVOList);
+        BeanUtil.copyProperties(new PageInfo<>(articlePage), resultPage, "list");
+        return resultPage;
+    }
+
+    private ArticleListVO convertToVO(Article article) {
+        ArticleVO articleVO = new ArticleVO();
+        BeanUtil.copyProperties(article, articleVO);
         return articleVO;
     }
 }

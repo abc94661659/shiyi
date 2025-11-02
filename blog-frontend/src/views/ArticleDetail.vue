@@ -5,7 +5,7 @@
     v-else-if="markdownContent"
     v-model:model-value="markdownContent"
     :height="'600px'"
-    class="z-index: 1"
+    :theme="themeStore.isDark ? 'dark' : 'light'"
   />
   <!-- 内容为空时显示提示，避免组件空渲染 -->
   <div v-else>文章内容加载中...</div>
@@ -15,15 +15,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
 import { MdPreview } from "md-editor-v3";
 import "md-editor-v3/lib/style.css";
 import { useRoute } from "vue-router";
 import { getArticleDetailById } from "../api/articleService";
 import { createComment } from "../api/interactionService";
 import CommentItem from "../components/comment/CommentItem.vue";
+import { useThemeStore } from "../stores/theme";
 
 const route = useRoute();
+const themeStore = useThemeStore();
 const articleId = route.params.id;
 const markdownContent = ref<string>(``);
 const loading = ref<boolean>(false);

@@ -29,6 +29,7 @@
       v-model="content"
       placeholder="请输入文章内容"
       :toolbarsExclude="['github']"
+      :theme="themeStore.isDark ? 'dark' : 'light'"
     />
     <n-flex>
       <n-button type="success" @click="insertArticle()">保存文章</n-button>
@@ -37,14 +38,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import { MdEditor } from "md-editor-v3";
 import "md-editor-v3/lib/style.css";
 import { createArticle } from "../api/articleService";
 import { useMessage } from "naive-ui";
+import { useThemeStore } from "../stores/theme";
 
+const themeStore = useThemeStore();
 const message = useMessage();
-
 const title = ref<string>("");
 const summary = ref<string>("");
 const authorId = ref<number>(1);

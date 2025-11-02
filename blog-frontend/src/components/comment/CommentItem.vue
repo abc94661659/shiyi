@@ -23,12 +23,12 @@
           v-if="comment.isLike === true"
         >
           <n-icon style="font-size: 18px">
-            <Star />
+            <Heart />
           </n-icon>
         </n-button>
         <n-button text @click="handleLike(comment.id)" v-else>
           <n-icon>
-            <StarOutline />
+            <HeartOutline />
           </n-icon>
         </n-button>
         <n-button text size="tiny">回复</n-button>
@@ -58,12 +58,12 @@
               v-if="child.isLike === true"
             >
               <n-icon>
-                <Star />
+                <Heart />
               </n-icon>
             </n-button>
             <n-button text @click="handleLike(child.id)" v-else>
               <n-icon>
-                <StarOutline />
+                <HeartOutline />
               </n-icon>
             </n-button>
             <n-button text size="tiny">回复</n-button>
@@ -109,7 +109,7 @@
 </template>
 
 <script setup lang="ts">
-import { Star, StarOutline } from "@vicons/ionicons5";
+import { Heart, HeartOutline } from "@vicons/ionicons5";
 import { defineProps, ref, onMounted } from "vue";
 import {
   likeComment,

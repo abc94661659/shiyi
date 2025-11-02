@@ -1,7 +1,10 @@
 package com.linshiyi.article.controller;
 
+import com.github.pagehelper.PageInfo;
 import com.linshiyi.article.domain.dto.ArticleCreateDTO;
+import com.linshiyi.article.domain.dto.ArticleQueryDTO;
 import com.linshiyi.article.domain.dto.ArticleUpdateDTO;
+import com.linshiyi.article.domain.vo.ArticleListVO;
 import com.linshiyi.article.domain.vo.ArticleVO;
 import com.linshiyi.article.service.ArticleService;
 import com.linshiyi.common.common.Result;
@@ -9,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -39,4 +43,10 @@ public class ArticleController {
         return Result.success(articleService.getArticleById(id));
     }
 
+    @GetMapping("/getArticleList")
+    @Operation(summary = "获取文章列表")
+    public Result<PageInfo<ArticleListVO>> getArticleList(@Valid @ModelAttribute @ParameterObject ArticleQueryDTO articleQueryDTO) {
+        PageInfo<ArticleListVO> pageInfo = articleService.getArticleList(articleQueryDTO);
+        return Result.success(pageInfo);
+    }
 }
