@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.linshiyi.user.mapper.UserMapper">
+    <insert id="insert">
+        INSERT INTO "user" (id, user_name, password, nick_name, email, phone)
+        VALUES (#{id}, #{userName}, #{password}, #{nickName}, #{email}, #{phone})
+    </insert>
+
+
+    <select id="checkExists" resultType="java.util.Map">
+        SELECT
+            -- 用户名是否存在（true=存在，false=不存在）
+            (CASE WHEN EXISTS(SELECT 1 FROM "user" WHERE user_name = #{userName}) THEN true ELSE false END) AS
+                                                                                                               "userName_exists",
+            -- 邮箱是否存在
+            (CASE
+                 WHEN EXISTS(SELECT 1 FROM "user" WHERE email = #{email}) THEN true
+                 ELSE false END)                                                                            AS email_exists,
+            -- 手机号是否存在
+            (CASE
+                 WHEN #{phone} IS NOT NULL AND #{phone} != '' AND EXISTS(SELECT 1 FROM "user" WHERE phone = #{phone})
+                     THEN true
+                 ELSE false END)                                                                            AS phone_exists
+    </select>
+
+    <select id="selectByAccount" resultType="com.linshiyi.user.domain.po.User">
+        SELECT id,
+               user_name,
+               password,
+               email,
+               phone,
+               status,
+               is_deleted
+        FROM "user"
+        WHERE user_name =
+              #{account}
+           OR email = #{account}
+           OR phone = #{account}
+    </select>
+
+</mapper>

@@ -15,7 +15,7 @@ public class CorsConfig {
         // 1. 配置跨域参数
         CorsConfiguration config = new CorsConfiguration();
         // 允许的来源（根据实际前端地址调整，*表示允许所有）
-        config.addAllowedOriginPattern("http://localhost:5173");
+        config.addAllowedOriginPattern("*");
         // 允许的请求头
         config.addAllowedHeader("*");
         // 允许的请求方法（GET/POST等）

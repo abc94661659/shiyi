@@ -1,20 +1,23 @@
 package com.linshiyi.article.controller;
 
+
 import com.linshiyi.article.domain.dto.ArticleCategoryCreateDTO;
 import com.linshiyi.article.domain.dto.ArticleCategoryUpdateDTO;
 import com.linshiyi.article.service.ArticleCategoryService;
-import com.linshiyi.common.common.Result;
+import com.linshiyi.core.entity.po.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Tag(name = "文章分类服务")
 @AllArgsConstructor
+@RequestMapping("/article")
 public class ArticleCategoryController {
 
     private final ArticleCategoryService articleCategoryService;
@@ -32,6 +35,6 @@ public class ArticleCategoryController {
         articleCategoryService.updateArticleCategory(articleCategoryUpdateDTO);
         return Result.success("更新文章分类成功");
     }
-    
+
 
 }

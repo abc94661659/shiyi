@@ -4,9 +4,9 @@ import cn.hutool.core.bean.BeanUtil;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.linshiyi.common.enums.StatusCodeEnum;
-import com.linshiyi.common.enums.StatusEnum;
 import com.linshiyi.common.exception.BusinessException;
+import com.linshiyi.core.enums.StatusCodeEnum;
+import com.linshiyi.core.enums.StatusEnum;
 import com.linshiyi.interaction.domain.dto.CommentChildQueryDTO;
 import com.linshiyi.interaction.domain.dto.CommentCreateDTO;
 import com.linshiyi.interaction.domain.dto.CommentQueryDTO;
@@ -40,17 +40,17 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void createComment(CommentCreateDTO commentCreateDTO) {
-        //TODO 用户id校验
+        // TODO 用户id校验
 
         // 先创建出comment在维护关系
         Comment comment = new Comment();
         BeanUtil.copyProperties(commentCreateDTO, comment);
-        //TODO 用户id校验
+        // TODO 用户id校验
         comment.setUserId(1L);
         Long parentId = commentCreateDTO.getParentId();
-        if(parentId != null) {
+        if (parentId != null) {
             Comment parentComment = commentMapper.selectById(parentId);
-            if (parentComment == null || parentComment.getIsDeleted().equals(StatusEnum.DISABLED_OR_DELETED.getCode())){
+            if (parentComment == null || parentComment.getIsDeleted().equals(StatusEnum.DISABLED_OR_DELETED.getCode())) {
                 throw new BusinessException(StatusCodeEnum.NOT_FOUND, "父级评论不存在或已删除");
             }
             if (!parentComment.getEntityType().equals(comment.getEntityType()) || !parentComment.getEntityId().equals(comment.getEntityId())) {
@@ -60,10 +60,10 @@ public class CommentServiceImpl implements CommentService {
         commentMapper.insert(comment);
         Long childId = comment.getId();
         List<CommentClosure> parentClosures = new ArrayList<>();
-        if(parentId != null) {
+        if (parentId != null) {
             parentClosures = commentClosureMapper.selectByDescendant(parentId);
             if (parentClosures.isEmpty()) {
-                //TODO 如果为null手动创建
+                // TODO 如果为null手动创建
                 throw new BusinessException(StatusCodeEnum.SYSTEM_ERROR, "父评论层级关系异常");
             }
         }
@@ -131,7 +131,6 @@ public class CommentServiceImpl implements CommentService {
     }
 
 
-
     @Override
     public PageInfo<CommentVO> queryChildComment(CommentChildQueryDTO commentChildQueryDTO) {
         PageHelper.startPage(commentChildQueryDTO.getPageNum(), commentChildQueryDTO.getPageSize());
@@ -150,6 +149,7 @@ public class CommentServiceImpl implements CommentService {
         BeanUtil.copyProperties(comment, vo);
         return vo;
     }
+
     /**
      * 生成新评论的闭包关系
      */

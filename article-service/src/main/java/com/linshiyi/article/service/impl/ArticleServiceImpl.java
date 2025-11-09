@@ -14,8 +14,8 @@ import com.linshiyi.article.domain.vo.ArticleVO;
 import com.linshiyi.article.mapper.ArticleContentMapper;
 import com.linshiyi.article.mapper.ArticleMapper;
 import com.linshiyi.article.service.ArticleService;
-import com.linshiyi.common.enums.StatusCodeEnum;
 import com.linshiyi.common.exception.BusinessException;
+import com.linshiyi.core.enums.StatusCodeEnum;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,15 +32,6 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void createArticle(ArticleCreateDTO articleCreateDTO) {
-        if (articleCreateDTO.getAuthorId() == null) {
-            throw new BusinessException(StatusCodeEnum.PARAM_ERROR, "作者ID不能为空");
-        }
-        if (articleCreateDTO.getTitle() == null) {
-            throw new BusinessException(StatusCodeEnum.PARAM_ERROR, "标题不能为空");
-        }
-        if (articleCreateDTO.getContent() == null) {
-            throw new BusinessException(StatusCodeEnum.PARAM_ERROR, "文章内容不能为空");
-        }
         Article article = new Article();
         BeanUtil.copyProperties(articleCreateDTO, article);
         articleMapper.insert(article);

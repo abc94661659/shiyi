@@ -2,8 +2,10 @@ package com.linshiyi.article;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.linshiyi")
+@EnableDiscoveryClient
 public class ArticleServiceApplication {
 
     public static void main(String[] args) {

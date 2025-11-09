@@ -1,7 +1,8 @@
 package com.linshiyi.common.exception;
 
-import com.linshiyi.common.common.Result;
-import com.linshiyi.common.enums.StatusCodeEnum;
+
+import com.linshiyi.core.entity.po.Result;
+import com.linshiyi.core.enums.StatusCodeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,6 +19,7 @@ public class GlobalExceptionHandler {
         log.error("业务异常：{}", e.getMessage());
         return Result.fail(e.getCode(), e.getMessage());
     }
+
     /**
      * 处理DTO参数校验异常（如@NotBlank、@NotNull校验失败）
      * 对应Controller中@Valid注解触发的校验

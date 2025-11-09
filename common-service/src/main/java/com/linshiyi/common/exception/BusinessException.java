@@ -1,6 +1,7 @@
 package com.linshiyi.common.exception;
 
-import com.linshiyi.common.enums.StatusCodeEnum;
+
+import com.linshiyi.core.enums.StatusCodeEnum;
 import lombok.Getter;
 
 /**

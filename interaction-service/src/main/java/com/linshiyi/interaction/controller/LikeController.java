@@ -1,8 +1,8 @@
 package com.linshiyi.interaction.controller;
 
+import com.linshiyi.core.entity.po.Result;
 import com.linshiyi.interaction.domain.dto.LikeDTO;
 import com.linshiyi.interaction.service.LikeService;
-import com.linshiyi.common.common.Result;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Tag(name = "评论点赞管理")
 @AllArgsConstructor
-@RequestMapping("/like")
+@RequestMapping("/interaction/like")
 public class LikeController {
     private final LikeService likeService;
 

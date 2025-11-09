@@ -23,6 +23,7 @@
         <module>user-service</module>
         <module>article-service</module>
         <module>common-service</module>
+        <module>common-core</module>
         <module>gateway-service</module>
         <module>interaction-service</module>
     </modules>
@@ -39,7 +40,7 @@
         <knife4j.version>4.4.0</knife4j.version>
     </properties>
 
-    <!-- 依赖版本管理（子工程继承后无需指定版本） -->
+    <!-- 依赖版本管理 -->
     <dependencyManagement>
         <dependencies>
             <!-- Spring Cloud 依赖 -->
@@ -101,6 +102,29 @@
                 <version>1.4.6</version>
             </dependency>
 
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>0.11.5</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>0.11.5</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>0.11.5</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid-spring-boot-starter</artifactId>
+                <version>1.2.23</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>
@@ -111,11 +135,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
         </dependency>
 
         <dependency>
@@ -132,6 +151,10 @@
         <dependency>
             <groupId>com.github.pagehelper</groupId>
             <artifactId>pagehelper-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
         </dependency>
     </dependencies>
 

@@ -1,6 +1,7 @@
 package com.linshiyi.interaction.domain.dto;
 
-import com.linshiyi.common.domain.dto.QueryDTO;
+
+import com.linshiyi.core.entity.dto.QueryDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

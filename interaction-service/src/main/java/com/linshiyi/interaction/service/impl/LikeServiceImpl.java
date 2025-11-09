@@ -1,10 +1,11 @@
 package com.linshiyi.interaction.service.impl;
 
+
+import com.linshiyi.core.enums.StatusEnum;
 import com.linshiyi.interaction.domain.dto.LikeDTO;
 import com.linshiyi.interaction.domain.po.Like;
 import com.linshiyi.interaction.mapper.LikeMapper;
 import com.linshiyi.interaction.service.LikeService;
-import com.linshiyi.common.enums.StatusEnum;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ public class LikeServiceImpl implements LikeService {
     public Boolean likeComment(LikeDTO likeDTO) {
         // TODO 获取用户id
         Long userId = 1L;
-        Like like = likeMapper.selectByCommentIdAndUserIdAndEntityType(likeDTO.getEntityId(),userId,
+        Like like = likeMapper.selectByCommentIdAndUserIdAndEntityType(likeDTO.getEntityId(), userId,
                 likeDTO.getEntityType());
         if (like == null) {
             like = new Like();
