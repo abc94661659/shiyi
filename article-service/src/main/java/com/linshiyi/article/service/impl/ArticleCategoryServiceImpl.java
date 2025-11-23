@@ -24,12 +24,11 @@ public class ArticleCategoryServiceImpl implements ArticleCategoryService {
     }
 
     @Override
-    public void updateArticleCategory(ArticleCategoryUpdateDTO articleCategoryUpdateDTO) {
+    public void updateArticleCategory(ArticleCategoryUpdateDTO articleCategoryUpdateDTO, Long id) {
         ArticleCategory articleCategory = new ArticleCategory();
         BeanUtil.copyProperties(articleCategoryUpdateDTO, articleCategory);
         // TODO 分类层级计算还未实现（使用缓存）
         articleCategory.setLevel(1);
-        articleCategoryMapper.update(articleCategory);
-
+        articleCategoryMapper.update(articleCategory, id);
     }
 }

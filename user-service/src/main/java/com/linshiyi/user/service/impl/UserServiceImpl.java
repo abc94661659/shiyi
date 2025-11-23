@@ -5,7 +5,9 @@ import com.alibaba.nacos.common.utils.StringUtils;
 import com.linshiyi.common.config.properties.JwtProperties;
 import com.linshiyi.common.exception.BusinessException;
 import com.linshiyi.core.entity.dto.JwtPayloadDTO;
+import com.linshiyi.core.entity.vo.UserBriefVO;
 import com.linshiyi.core.enums.StatusCodeEnum;
+import com.linshiyi.core.enums.StatusEnum;
 import com.linshiyi.core.utils.JwtUtil;
 import com.linshiyi.user.domain.dto.UserCreateDTO;
 import com.linshiyi.user.domain.dto.UserLoginDTO;
@@ -18,7 +20,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -40,7 +45,7 @@ public class UserServiceImpl implements UserService {
 
         User user = new User();
         user.setId(snowflake.nextId());
-        user.setUserName(userCreateDto.getUserName().trim());
+        user.setUserName(userCreateDto.getUserName().trim().toLowerCase(Locale.ROOT));
         user.setNickName(userCreateDto.getUserName().trim());
         user.setPassword(passwordEncoder.encode(userCreateDto.getPassword().trim()));
         user.setEmail(userCreateDto.getEmail().trim());
@@ -51,7 +56,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String login(UserLoginDTO userLoginDTO) {
-        String account = userLoginDTO.getAccount().trim();
+        String account = userLoginDTO.getAccount().trim().toLowerCase(Locale.ROOT);
         String password = userLoginDTO.getPassword().trim();
         User user = userMapper.selectByAccount(account);
         if (user == null) {
@@ -67,18 +72,33 @@ public class UserServiceImpl implements UserService {
 
         LocalDateTime now = LocalDateTime.now();
         JwtPayloadDTO payload = new JwtPayloadDTO();
-        payload.setUserId(user.getId());
+        payload.setUserId(String.valueOf(user.getId()));
         payload.setUserName(user.getUserName());
-        payload.setRole("USER"); // 假设默认角色为USER（实际可从数据库查询）
+        // TODO 设置角色
+        // payload.setRole("USER");
+        // 设置状态
+        payload.setStatus(StatusEnum.getByCode(user.getStatus()));
         payload.setIssuedAt(now);
-        payload.setExpiration(now.plusMinutes(jwtProperties.getExpireMinutes())); // 过期时间
+        payload.setExpiration(now.plusMinutes(jwtProperties.getExpireMinutes()));
 
         // 生成token
         return JwtUtil.generateToken(payload, jwtProperties.getSecret());
 
     }
 
-    // 是否创建
+    @Override
+    public List<UserBriefVO> getUserBriefsByIds(Set<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return List.of();
+        }
+        return userMapper.selectUserBriefsByIds(userIds);
+    }
+
+    /**
+     * 检查用户信息
+     *
+     * @param userCreateDto 创建用户信息
+     */
     private void isCreateUser(UserCreateDTO userCreateDto) {
         userCreateDto.setUserName(userCreateDto.getUserName().trim());
         userCreateDto.setEmail(userCreateDto.getEmail().trim());
@@ -99,5 +119,4 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "手机号已存在");
         }
     }
-
 }

@@ -3,11 +3,13 @@
 <mapper namespace="com.linshiyi.article.mapper.ArticleMapper">
 
 
-    <insert id="insert" parameterType="com.linshiyi.article.domain.po.Article" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO article (title, summary, author_id, category_id, cover_image)
-        VALUES (#{title}, #{summary}, #{authorId}, #{categoryId}, #{coverImage})
+    <insert id="insert" parameterType="com.linshiyi.article.domain.po.Article" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO article (title, summary, author_id, category_id, cover_image, status, create_time, update_time)
+        VALUES (#{title}, #{summary}, #{authorId}, #{categoryId}, #{coverImage}, #{status}, #{createTime},
+                #{updateTime})
     </insert>
-    <update id="update">
+    <update id="updateById">
         UPDATE article
         <set>
             <if test="title != null and title != ''">
@@ -22,20 +24,64 @@
             <if test="coverImage != null and coverImage != ''">
                 cover_image = #{coverImage}
             </if>
+            update_time = #{updateTime}
         </set>
         WHERE id = #{id}
     </update>
     <select id="selectById" resultType="com.linshiyi.article.domain.po.Article">
-        SELECT id, title, summary, category_id, cover_image
+        SELECT id, title, summary, category_id, cover_image, author_id
         FROM article
         WHERE id = #{id}
     </select>
     <select id="selectList" resultType="com.linshiyi.article.domain.po.Article">
         SELECT id,title,summary,category_id,cover_image,view_count,comment_count,is_top,create_time FROM article
-        <where>
-            <if test="title != null and title != ''">
-                title LIKE CONCAT('%', #{title}, '%')
-            </if>
-        </where>
+        WHERE status = 2 AND is_deleted = 0
+        <if test="title != null and title != ''">
+            AND title LIKE CONCAT('%', #{dto.title}, '%')
+        </if>
+        ORDER BY a.create_time DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+    <select id="selectArticleById" resultType="com.linshiyi.article.domain.vo.ArticleVO">
+        SELECT a.id            AS id,
+               a.title         AS title,
+               a.summary       AS summary,
+               a.author_id     AS authorId,
+               a.category_id   AS category_id,
+               a.cover_image   AS cover_image,
+               a.view_count    AS view_count,
+               a.comment_count AS comment_count,
+               a.create_time   AS create_time,
+               ac.content      AS content
+        FROM article a
+                 INNER JOIN article_content ac ON a.id = ac.article_id
+        WHERE a.id = #{id}
+          AND a.status = 2
+          AND a.is_deleted = 0
+          AND ac.is_deleted = 0
+        ORDER BY ac.version DESC
+        limit 1
+    </select>
+    <select id="selectDraftById" resultType="com.linshiyi.article.domain.vo.ArticleEditVO">
+        SELECT a.id            AS id,
+               a.title         AS title,
+               a.summary       AS summary,
+               a.author_id     AS authorId,
+               a.category_id   AS category_id,
+               a.cover_image   AS cover_image,
+               a.view_count    AS view_count,
+               a.comment_count AS comment_count,
+               a.create_time   AS create_time,
+               a.status        AS status,
+               ad.content      AS content
+        FROM article a
+                 INNER JOIN article_draft ad ON a.id = ad.article_id
+        WHERE a.id = #{id}
+    </select>
+    <select id="selectCount" resultType="java.lang.Long">
+        SELECT COUNT(1)
+        FROM article
+        WHERE status = 2
+          AND is_deleted = 0
     </select>
 </mapper>

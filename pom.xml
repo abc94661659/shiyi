@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -10,7 +11,6 @@
         <relativePath/>
     </parent>
 
-
     <groupId>com.linshiyi</groupId>
     <artifactId>blog</artifactId>
     <version>1.0.0</version>
@@ -18,12 +18,12 @@
     <name>blog</name>
     <description>博客系统父工程</description>
 
-    <!-- 子模块声明（所有子服务需在这里注册） -->
     <modules>
         <module>user-service</module>
         <module>article-service</module>
         <module>common-service</module>
         <module>common-core</module>
+        <module>common-client</module>
         <module>gateway-service</module>
         <module>interaction-service</module>
     </modules>
@@ -32,18 +32,20 @@
         <java.version>17</java.version>
         <spring-cloud.version>2023.0.0</spring-cloud.version>
         <spring-cloud-alibaba.version>2023.0.1.0</spring-cloud-alibaba.version>
-        <mybatis.version>3.5.15</mybatis.version>
         <mybatis-spring-boot-starter.version>3.0.3</mybatis-spring-boot-starter.version>
         <postgresql.version>42.3.1</postgresql.version>
         <lombok.version>1.18.30</lombok.version>
         <hutool.version>5.8.25</hutool.version>
-        <knife4j.version>4.4.0</knife4j.version>
+        <knife4j.version>4.5.0</knife4j.version>
+        <pagehelper.version>1.4.6</pagehelper.version>
+        <jjwt.version>0.11.5</jjwt.version>
+        <druid.version>1.2.23</druid.version>
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
     </properties>
 
-    <!-- 依赖版本管理 -->
     <dependencyManagement>
         <dependencies>
-            <!-- Spring Cloud 依赖 -->
+            <!-- Spring Cloud -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
@@ -52,7 +54,7 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- Spring Cloud Alibaba 依赖 -->
+            <!-- Spring Cloud Alibaba -->
             <dependency>
                 <groupId>com.alibaba.cloud</groupId>
                 <artifactId>spring-cloud-alibaba-dependencies</artifactId>
@@ -61,75 +63,82 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- MyBatis 依赖 -->
+            <!-- MyBatis -->
             <dependency>
                 <groupId>org.mybatis.spring.boot</groupId>
                 <artifactId>mybatis-spring-boot-starter</artifactId>
                 <version>${mybatis-spring-boot-starter.version}</version>
             </dependency>
 
-            <!-- PostgreSQL驱动 -->
+            <!-- DB & Pool -->
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid-spring-boot-3-starter</artifactId>
+                <version>${druid.version}</version>
+            </dependency>
 
-            <!-- Lombok -->
+            <!-- Utils -->
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
                 <optional>true</optional>
             </dependency>
-
-            <!-- Hutool -->
             <dependency>
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
                 <version>${hutool.version}</version>
             </dependency>
-            <!-- Knife4j  -->
+
+            <!--  & Knife4j (for Servlet services) -->
             <dependency>
                 <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId> <!-- 修正拼写为 knife4j -->
+                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
                 <version>${knife4j.version}</version>
             </dependency>
-            <!-- 分页插件 -->
+
+            <!-- Pagination -->
             <dependency>
                 <groupId>com.github.pagehelper</groupId>
                 <artifactId>pagehelper-spring-boot-starter</artifactId>
-                <version>1.4.6</version>
+                <version>${pagehelper.version}</version>
             </dependency>
 
+            <!-- JWT -->
             <dependency>
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt-api</artifactId>
-                <version>0.11.5</version>
+                <version>${jjwt.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt-impl</artifactId>
-                <version>0.11.5</version>
+                <version>${jjwt.version}</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt-jackson</artifactId>
-                <version>0.11.5</version>
+                <version>${jjwt.version}</version>
                 <scope>runtime</scope>
             </dependency>
 
+            <!-- MapStruct -->
             <dependency>
-                <groupId>com.alibaba</groupId>
-                <artifactId>druid-spring-boot-starter</artifactId>
-                <version>1.2.23</version>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${mapstruct.version}</version>
             </dependency>
-        </dependencies>
 
+        </dependencies>
     </dependencyManagement>
 
-    <!-- 所有子工程共用的依赖 -->
+    <!-- 全局共享依赖（所有子模块都会继承） -->
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -143,15 +152,7 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.github.xiaoymin</groupId>
-            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.pagehelper</groupId>
-            <artifactId>pagehelper-spring-boot-starter</artifactId>
-        </dependency>
+        <!-- Hutool 可作为通用工具 -->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>

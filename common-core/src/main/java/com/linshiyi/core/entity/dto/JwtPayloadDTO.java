@@ -11,10 +11,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class JwtPayloadDTO {
 
-    private Long userId;
+    private String userId;
 
     private String userName;
-    private String role;
+    private String status;
     // token签发时间
     private LocalDateTime issuedAt;
     // token过期时间

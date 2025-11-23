@@ -1,5 +1,6 @@
 package com.linshiyi.core.enums;
 
+
 import lombok.Getter;
 
 /**
@@ -14,18 +15,18 @@ import lombok.Getter;
 public enum StatusCodeEnum {
 
     // 通用成功
-    SUCCESS(200, "操作成功"),
+    SUCCESS(200, "操作成功", 200),
 
     // 客户端错误
-    PARAM_ERROR(400, "参数校验失败"),
-    AUTH_ERROR(401, "权限不足"),
+    PARAM_ERROR(400, "参数校验失败", 400),
+    AUTH_ERROR(403, "权限不足", 403),
 
     // 服务器错误
-    SYSTEM_ERROR(500, "系统繁忙，请稍后再试"),
+    SYSTEM_ERROR(500, "系统繁忙，请稍后再试", 500),
 
     // 业务自定义错误
-    NOT_FOUND(404, "资源不存在"),
-    BUSINESS_ERROR(600, "业务操作失败");
+    NOT_FOUND(404, "资源不存在", 404),
+    BUSINESS_ERROR(600, "业务操作失败", 500);
 
 
     /**
@@ -37,9 +38,11 @@ public enum StatusCodeEnum {
      * 状态描述
      */
     private final String msg;
+    private final Integer httpStatus;
 
-    StatusCodeEnum(Integer code, String msg) {
+    StatusCodeEnum(Integer code, String msg, Integer httpStatus) {
         this.code = code;
         this.msg = msg;
+        this.httpStatus = httpStatus;
     }
 }

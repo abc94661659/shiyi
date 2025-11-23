@@ -8,6 +8,7 @@ public interface ArticleContentMapper {
 
     void insert(ArticleContent articleContent);
 
-
     ArticleContent selectLatestByArticleId(Long id);
+
+    Integer selectMaxVersionByArticleId(Long id);
 }

@@ -4,15 +4,20 @@
 
 
     <insert id="insert">
-        INSERT INTO article_content (article_id, content, content_version)
-        VALUES (#{articleId}, #{content}, #{contentVersion})
+        INSERT INTO article_content (article_id, content, version, create_time)
+        VALUES (#{articleId}, #{content}, #{version}, #{createTime})
     </insert>
 
     <select id="selectLatestByArticleId" resultType="com.linshiyi.article.domain.po.ArticleContent">
-        SELECT id, article_id, content, content_version
+        SELECT id, article_id, content, version
         FROM article_content
         WHERE article_id = #{articleId}
-        ORDER BY content_version DESC
+        ORDER BY version DESC
         LIMIT 1
+    </select>
+    <select id="selectMaxVersionByArticleId" resultType="java.lang.Integer">
+        SELECT MAX(version)
+        FROM article_content
+        WHERE article_id = #{articleId}
     </select>
 </mapper>

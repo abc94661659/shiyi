@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Data
 @Component
-@ConfigurationProperties(prefix = "jwt") // 配置前缀
+@ConfigurationProperties(prefix = "jwt")
 public class JwtProperties {
     // 签名密钥（必须足够复杂，建议至少32位）
     private String secret;

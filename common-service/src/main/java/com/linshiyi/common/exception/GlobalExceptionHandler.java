@@ -1,7 +1,7 @@
 package com.linshiyi.common.exception;
 
 
-import com.linshiyi.core.entity.po.Result;
+import com.linshiyi.core.entity.Result;
 import com.linshiyi.core.enums.StatusCodeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.MethodArgumentNotValidException;

@@ -5,25 +5,25 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO article_category (name, parent_id, level, sort)
-        VALUES (#{name}, #{parentId}, #{level}, #{sort})
+        VALUES (#{dto.name}, #{dto.parentId}, #{dto.level}, #{dto.sort})
     </insert>
     <update id="update">
         UPDATE article_category
         <set>
             <if test="name != null">
-                name = #{name},
+                name = #{dto.name},
             </if>
             <if test="parentId != null">
-                parent_id = #{parentId},
+                parent_id = #{dto.parentId},
             </if>
             <if test="level != null">
-                level = #{level},
+                level = #{dto.level},
             </if>
             <if test="sort != null">
-                sort = #{sort},
+                sort = #{dto.sort},
             </if>
             <if test="isDeleted != null">
-                is_deleted = #{isDeleted},
+                is_deleted = #{dto.isDeleted},
             </if>
         </set>
         WHERE id = #{id}

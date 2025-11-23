@@ -1,4 +1,4 @@
-package com.linshiyi.core.entity.po;
+package com.linshiyi.core.entity;
 
 
 import com.linshiyi.core.enums.StatusCodeEnum;

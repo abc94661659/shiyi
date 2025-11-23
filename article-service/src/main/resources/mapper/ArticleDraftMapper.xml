@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.linshiyi.article.mapper.ArticleDraftMapper">
+
+
+    <insert id="insert" parameterType="com.linshiyi.article.domain.po.ArticleDraft">
+        INSERT INTO article_draft (article_id, content, update_time)
+        VALUES (#{articleId}, #{content}, #{updateTime})
+    </insert>
+    <update id="updateById">
+        UPDATE article_draft
+        <set>
+            <if test="content != null">
+                content = #{content},
+            </if>
+            update_time = #{updateTime}
+        </set>
+        WHERE article_id = #{articleId}
+    </update>
+    <select id="selectByArticleId" resultType="com.linshiyi.article.domain.po.ArticleDraft">
+        SELECT article_id, content, update_time
+        FROM article_draft
+        WHERE article_id = #{id}
+        ORDER BY update_time DESC
+        LIMIT 1
+    </select>
+</mapper>

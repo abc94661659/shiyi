@@ -1,7 +1,5 @@
 package com.linshiyi.core.utils;
 
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linshiyi.core.entity.dto.JwtPayloadDTO;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -20,7 +18,6 @@ public class JwtUtil {
 
     // 签名算法
     private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS512;
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * 生成JWT令牌
@@ -41,7 +38,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .claim("userId", payload.getUserId()) // 用户ID
                 .claim("userName", payload.getUserName())  // 自定义载荷：用户名
-                .claim("role", payload.getRole())          // 自定义载荷：角色
+                .claim("status", payload.getStatus())
                 .setIssuedAt(Date.from(issuedAtInstant))   // 签发时间
                 .setExpiration(Date.from(expirationInstant)) // 过期时间
                 .signWith(key, SIGNATURE_ALGORITHM)        // 签名
@@ -73,13 +70,14 @@ public class JwtUtil {
                 claims.getExpiration().toInstant(), ZoneId.systemDefault()
         );
 
-        return new JwtPayloadDTO(
-                claims.get("userId", Long.class),
-                claims.get("userName", String.class),
-                claims.get("role", String.class),
-                issuedAt,
-                expiration
-        );
+        return
+                new JwtPayloadDTO(
+                        claims.get("userId", String.class),
+                        claims.get("userName", String.class),
+                        claims.get("status", String.class),
+                        issuedAt,
+                        expiration
+                );
     }
 
     /**

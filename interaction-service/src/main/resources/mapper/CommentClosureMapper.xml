@@ -23,7 +23,6 @@
         <foreach item="parentId" collection="list" separator="," open="(" close=")">
             #{parentId}
         </foreach>
-        AND cc.depth > 0
         AND c.is_deleted = 0
         GROUP BY cc.ancestor_id
     </select>

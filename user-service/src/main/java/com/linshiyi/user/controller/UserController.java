@@ -1,7 +1,7 @@
 package com.linshiyi.user.controller;
 
 
-import com.linshiyi.core.entity.po.Result;
+import com.linshiyi.core.entity.Result;
 import com.linshiyi.user.domain.dto.UserCreateDTO;
 import com.linshiyi.user.domain.dto.UserLoginDTO;
 import com.linshiyi.user.service.UserService;

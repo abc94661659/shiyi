@@ -2,11 +2,10 @@ package com.linshiyi.article.domain.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 @Data
 @Schema(description = "文章列表展示")
-public class ArticleListVO  {
+public class ArticleListVO {
     @Schema(description = "文章ID")
     private Long id;
     @Schema(description = "标题")
@@ -23,4 +22,9 @@ public class ArticleListVO  {
     private String categoryName;
     @Schema(description = "封面图片")
     private String coverImage;
+    @Schema(description = "浏览次数")
+    private Integer viewCount;
+    @Schema(description = "评论次数")
+    private Integer commentCount;
+
 }

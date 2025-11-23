@@ -10,17 +10,20 @@
     <select id="checkExists" resultType="java.util.Map">
         SELECT
             -- 用户名是否存在（true=存在，false=不存在）
-            (CASE WHEN EXISTS(SELECT 1 FROM "user" WHERE user_name = #{userName}) THEN true ELSE false END) AS
-                                                                                                               "userName_exists",
+            (CASE
+                 WHEN EXISTS(SELECT 1 FROM "user" WHERE LOWER(user_name) = LOWER(#{userName})) THEN true
+                 ELSE false
+                END)             AS
+                                    "userName_exists",
             -- 邮箱是否存在
             (CASE
                  WHEN EXISTS(SELECT 1 FROM "user" WHERE email = #{email}) THEN true
-                 ELSE false END)                                                                            AS email_exists,
+                 ELSE false END) AS email_exists,
             -- 手机号是否存在
             (CASE
                  WHEN #{phone} IS NOT NULL AND #{phone} != '' AND EXISTS(SELECT 1 FROM "user" WHERE phone = #{phone})
                      THEN true
-                 ELSE false END)                                                                            AS phone_exists
+                 ELSE false END) AS phone_exists
     </select>
 
     <select id="selectByAccount" resultType="com.linshiyi.user.domain.po.User">
@@ -36,6 +39,16 @@
               #{account}
            OR email = #{account}
            OR phone = #{account}
+    </select>
+    <select id="selectUserBriefsByIds" resultType="com.linshiyi.core.entity.vo.UserBriefVO">
+        SELECT id,
+        nick_name AS nickname,
+        avatar
+        FROM "user"
+        WHERE id IN
+        <foreach item="id" collection="userIds" separator="," open="(" close=")" index="">
+            #{id}
+        </foreach>
     </select>
 
 </mapper>

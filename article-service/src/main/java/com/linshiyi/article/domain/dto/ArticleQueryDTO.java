@@ -10,8 +10,5 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "文章分页查询参数")
 @EqualsAndHashCode(callSuper = false)
 public class ArticleQueryDTO extends QueryDTO {
-
     private String title;
-
-
 }

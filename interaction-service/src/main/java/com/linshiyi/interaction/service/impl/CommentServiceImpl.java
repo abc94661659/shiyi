@@ -1,56 +1,52 @@
 package com.linshiyi.interaction.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import com.linshiyi.client.user.UserClient;
 import com.linshiyi.common.exception.BusinessException;
+import com.linshiyi.core.entity.PageResult;
+import com.linshiyi.core.entity.vo.UserBriefVO;
 import com.linshiyi.core.enums.StatusCodeEnum;
 import com.linshiyi.core.enums.StatusEnum;
+import com.linshiyi.interaction.converter.CommentMapStruct;
 import com.linshiyi.interaction.domain.dto.CommentChildQueryDTO;
 import com.linshiyi.interaction.domain.dto.CommentCreateDTO;
 import com.linshiyi.interaction.domain.dto.CommentQueryDTO;
 import com.linshiyi.interaction.domain.po.Comment;
 import com.linshiyi.interaction.domain.po.CommentClosure;
-import com.linshiyi.interaction.domain.vo.CommentPageVO;
 import com.linshiyi.interaction.domain.vo.CommentVO;
 import com.linshiyi.interaction.mapper.CommentClosureMapper;
 import com.linshiyi.interaction.mapper.CommentMapper;
 import com.linshiyi.interaction.service.CommentService;
-import com.linshiyi.interaction.service.LikeService;
+import com.linshiyi.interaction.service.UserLikeService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class CommentServiceImpl implements CommentService {
 
     private final CommentMapper commentMapper;
     private final CommentClosureMapper commentClosureMapper;
-    private final LikeService likeService;
-
+    private final UserLikeService userLikeService;
+    private final CommentMapStruct commentConverter;
+    private final UserClient userClient;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void createComment(CommentCreateDTO commentCreateDTO) {
-        // TODO 用户id校验
-
-        // 先创建出comment在维护关系
-        Comment comment = new Comment();
-        BeanUtil.copyProperties(commentCreateDTO, comment);
-        // TODO 用户id校验
-        comment.setUserId(1L);
+    public void createComment(CommentCreateDTO commentCreateDTO, Long userId) {
+        // 先创建出comment再维护关系
+        Comment comment = commentConverter.toPO(commentCreateDTO);
+        comment.setUserId(userId);
         Long parentId = commentCreateDTO.getParentId();
         if (parentId != null) {
             Comment parentComment = commentMapper.selectById(parentId);
-            if (parentComment == null || parentComment.getIsDeleted().equals(StatusEnum.DISABLED_OR_DELETED.getCode())) {
+            if (parentComment == null || parentComment.getIsDeleted().equals(StatusEnum.DELETED.getCode())) {
                 throw new BusinessException(StatusCodeEnum.NOT_FOUND, "父级评论不存在或已删除");
             }
             if (!parentComment.getEntityType().equals(comment.getEntityType()) || !parentComment.getEntityId().equals(comment.getEntityId())) {
@@ -74,80 +70,94 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentPageVO queryParentComment(CommentQueryDTO commentQueryDTO) {
-        PageHelper.startPage(commentQueryDTO.getPageNum(), commentQueryDTO.getPageSize());
-        // 查询父级评论
-        List<Comment> parentComment = commentMapper.selectParentComment(commentQueryDTO);
-        PageInfo<Comment> parentCommentPage = new PageInfo<>(parentComment);
-        List<CommentVO> commentVOList = parentComment.stream()
-                .map(this::convertToVO)
-                .collect(Collectors.toList());
-        // 计算总数
-        int totalComments = (int) parentCommentPage.getTotal();
-        // 批量查询父评论点赞状态
-        batchIsLike("COMMENT", commentVOList);
-        if (!commentVOList.isEmpty()) {
-            List<Long> parentIds = commentVOList.stream()
-                    .map(CommentVO::getId)
+    public PageResult<CommentVO> queryParentComment(CommentQueryDTO commentQueryDTO, Long userId) {
+        int pageNum = commentQueryDTO.getPageNum();
+        int pageSize = commentQueryDTO.getPageSize();
+        if (pageNum < 1) pageNum = 1;
+        if (pageSize < 1 || pageSize > 100) pageSize = 20;
+        int offset = Math.max(0, (pageNum - 1) * pageSize);
+        // 父评论总数
+        long totalParent = commentMapper.countParentComment(commentQueryDTO);
+        List<CommentVO> voList = new ArrayList<>();
+
+        if (totalParent > 0) {
+            List<Comment> parentList = commentMapper.selectParentComment(commentQueryDTO, offset, pageSize);
+            voList = parentList.stream()
+                    .map(commentConverter::toVO)
                     .toList();
-            List<Map<String, Object>> childCountList = commentClosureMapper.selectTotalChildCountBatch(parentIds);
+            // 获取所有id，批量获取用户名
+            Set<Long> userIds = new HashSet<>();
+            List<CommentVO> allComments = new ArrayList<>(voList);
+
+            List<Long> parentIds = voList.stream().map(CommentVO::getId).toList();
+            List<Map<String, Object>> childCounts = commentClosureMapper.selectTotalChildCountBatch(parentIds);
             Map<Long, Integer> childCountMap = new HashMap<>();
-            int totalChildCount = 0;
-            for (Map<String, Object> map : childCountList) {
-                Long ancestorId = ((Number) map.get("ancestor_id")).longValue();
-                int count = ((Number) map.get("child_count")).intValue();
-                childCountMap.put(ancestorId, count);
-                totalChildCount += count;
+            for (Map<String, Object> row : childCounts) {
+                Long id = ((Number) row.get("ancestor_id")).longValue();
+                int count = ((Number) row.get("child_count")).intValue();
+                childCountMap.put(id, Math.max(0, count - 1));
             }
-            totalComments += totalChildCount;
+            List<CommentVO> childVOs = new ArrayList<>();
+            for (CommentVO vo : voList) {
+                userIds.add(vo.getUserId());
+                int childCount = childCountMap.getOrDefault(vo.getId(), 0);
+                vo.setChildCount(childCount);
 
-            List<CommentVO> childCommentVOList = new ArrayList<>();
-            // 为每个父评论设置子评论总数和第一条子评论
-            for (CommentVO commentVO : commentVOList) {
-                // 设置子评论总数
-                commentVO.setChildCount(childCountMap.getOrDefault(commentVO.getId(), 0));
-
-                // 查询第一条子评论
-                if (commentVO.getChildCount() > 0) {
-                    Comment firstChild = commentMapper.selectFirstChildComment(commentVO.getId());
+                if (childCount > 0) {
+                    Comment firstChild = commentMapper.selectFirstChildComment(vo.getId());
                     if (firstChild != null) {
-                        // TODO
-                        CommentVO childCommentVO = convertToVO(firstChild);
-                        commentVO.setChildComment(childCommentVO);
-                        childCommentVOList.add(childCommentVO);
+                        CommentVO childVO = commentConverter.toVO(firstChild);
+                        vo.setChildComment(childVO);
+                        childVOs.add(childVO);
+                        userIds.add(childVO.getUserId());
+                        allComments.add(childVO);
                     }
                 }
             }
-            batchIsLike("COMMENT", childCommentVOList);
+            fillUserBriefInfo(allComments);
+
+            batchIsLike("COMMENT", voList, userId);
+            if (!childVOs.isEmpty()) {
+                batchIsLike("COMMENT", childVOs, userId);
+            }
         }
 
-        PageInfo<CommentVO> resultPage = new PageInfo<>(commentVOList);
-        BeanUtil.copyProperties(parentCommentPage, resultPage, "list");
-        CommentPageVO commentPageVO = new CommentPageVO();
-        resultPage.setTotal(totalComments);
-        commentPageVO.setPageInfo(resultPage);
-        commentPageVO.setTotalParentComments(parentCommentPage.getTotal());
-        return commentPageVO;
+        // 6. 构建自定义分页结果
+        return new PageResult<>(totalParent, voList, pageNum, pageSize);
     }
-
 
     @Override
-    public PageInfo<CommentVO> queryChildComment(CommentChildQueryDTO commentChildQueryDTO) {
-        PageHelper.startPage(commentChildQueryDTO.getPageNum(), commentChildQueryDTO.getPageSize());
-        Page<Comment> childCommentPage = (Page<Comment>) commentMapper.selectChildComment(commentChildQueryDTO);
-        List<CommentVO> commentVOList = childCommentPage.stream()
-                .map(this::convertToVO)
-                .collect(Collectors.toList());
-        batchIsLike("COMMENT", commentVOList);
-        PageInfo<CommentVO> resultPage = new PageInfo<>(commentVOList);
-        BeanUtil.copyProperties(new PageInfo<>(childCommentPage), resultPage, "list");
-        return resultPage;
-    }
+    public PageResult<CommentVO> queryChildComment(CommentChildQueryDTO dto, Long userId) {
+        Long parentId = dto.getParentId();
+        int pageNum = dto.getPageNum();
+        int pageSize = dto.getPageSize();
+        if (parentId == null) {
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "parentId 不能为空");
+        }
+        if (pageNum < 1) pageNum = 1;
+        if (pageSize < 1 || pageSize > 100) pageSize = 20;
+        long total = commentMapper.countChildComment(parentId);
+        if (total == 0) {
+            return new PageResult<>(0L, Collections.emptyList(), pageNum, pageSize);
+        }
+        int offset = (pageNum - 1) * pageSize;
+        List<Comment> childComments = commentMapper.selectChildCommentWithPaging(parentId, offset, pageSize);
+        if (childComments.isEmpty()) {
+            return new PageResult<>(total, Collections.emptyList(), pageNum, pageSize);
+        }
 
-    private CommentVO convertToVO(Comment comment) {
-        CommentVO vo = new CommentVO();
-        BeanUtil.copyProperties(comment, vo);
-        return vo;
+        List<CommentVO> voList = childComments.stream()
+                .map(commentConverter::toVO)
+                .collect(Collectors.toList());
+        Set<Long> userIds = voList.stream()
+                .map(CommentVO::getUserId)
+                .collect(Collectors.toSet());
+
+        fillUserBriefInfo(voList);
+
+        batchIsLike("COMMENT", voList, userId);
+
+        return new PageResult<>(total, voList, pageNum, pageSize);
     }
 
     /**
@@ -172,23 +182,72 @@ public class CommentServiceImpl implements CommentService {
         return newClosures;
     }
 
-    private void batchIsLike(String entityType, List<CommentVO> commentVOList) {
-        if (!commentVOList.isEmpty()) {
-            List<Long> commentIds = commentVOList.stream()
-                    .map(CommentVO::getId)
-                    .collect(Collectors.toList());
-            // TODO: 从上下文获取真实用户ID
-            Long userId = 1L;
-            Map<Long, Boolean> likeStatusMap = likeService.batchCheckLikeStatus(
-                    userId,
-                    entityType,
-                    commentIds
-            );
+    private void batchIsLike(String entityType, List<CommentVO> commentVOList, Long userId) {
+        if (commentVOList.isEmpty()) {
+            return;
+        }
 
-            // 设置点赞状态
-            commentVOList.forEach(vo ->
-                    vo.setIsLike(likeStatusMap.getOrDefault(vo.getId(), false))
-            );
+        List<Long> commentIds = commentVOList.stream()
+                .map(CommentVO::getId)
+                .collect(Collectors.toList());
+
+        // userId 为 null 表示未登录用户 → 批量检查时全部视为未点赞
+        Map<Long, Boolean> likeStatusMap = userLikeService.batchCheckLikeStatus(userId, entityType, commentIds);
+
+        commentVOList.forEach(vo ->
+                vo.setIsLike(likeStatusMap.getOrDefault(vo.getId(), false))
+        );
+    }
+
+    /**
+     * 批量填充评论列表中的用户昵称和头像
+     *
+     * @param commentVOs 需要填充用户信息的所有 CommentVO（包括父评论及其首条子评论等）
+     */
+    private void fillUserBriefInfo(List<CommentVO> commentVOs) {
+        if (commentVOs == null || commentVOs.isEmpty()) {
+            return;
+        }
+
+        Set<Long> userIds = commentVOs.stream()
+                .map(CommentVO::getUserId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        Map<Long, UserBriefVO> userBriefMap = new HashMap<>();
+        if (!userIds.isEmpty()) {
+            try {
+                List<UserBriefVO> briefs = userClient.getUserBriefs(userIds);
+                userBriefMap = briefs.stream()
+                        .collect(Collectors.toMap(UserBriefVO::getId, Function.identity(), (u1, u2) -> u1));
+            } catch (Exception e) {
+                log.warn("Failed to fetch user briefs for userIds: {}, error: {}", userIds, e.getMessage());
+                // fallback: 为每个用户生成默认信息
+                for (Long id : userIds) {
+                    UserBriefVO defaultBrief = new UserBriefVO();
+                    defaultBrief.setId(id);
+                    defaultBrief.setNickname("未知用户");
+                    defaultBrief.setAvatar("https://example.com/default-avatar.png");
+                    userBriefMap.put(id, defaultBrief);
+                }
+            }
+        }
+
+        // 填充 nickName 和 avatar
+        for (CommentVO comment : commentVOs) {
+            if (comment.getUserId() == null) {
+                comment.setNickName("未知用户");
+                comment.setAvatar("https://example.com/default-avatar.png");
+                continue;
+            }
+            UserBriefVO brief = userBriefMap.get(comment.getUserId());
+            if (brief != null) {
+                comment.setNickName(brief.getNickname());
+                comment.setAvatar(brief.getAvatar());
+            } else {
+                comment.setNickName("未知用户");
+                comment.setAvatar("https://example.com/default-avatar.png");
+            }
         }
     }
 }

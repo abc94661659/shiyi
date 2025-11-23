@@ -14,15 +14,10 @@ public class BusinessException extends RuntimeException {
      */
     private final Integer code;
 
-    /**
-     * 错误信息
-     */
-    private final String message;
 
     public BusinessException(StatusCodeEnum status, String message) {
         super(message);
         this.code = status.getCode();
-        this.message = message;
     }
 
     /**

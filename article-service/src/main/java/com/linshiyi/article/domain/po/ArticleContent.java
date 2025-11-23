@@ -12,6 +12,6 @@ public class ArticleContent {
     /**
      * 文章内容版本号
      */
-    private Integer contentVersion;
+    private Integer version;
     private LocalDateTime createTime;
 }

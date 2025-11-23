@@ -11,6 +11,12 @@ spring:
         group: DEFAULT_GROUP  # 配置分组（默认DEFAULT_GROUP，可自定义）
         # 命名空间（可选，用于环境隔离，需在 Nacos 控制台提前创建，值为命名空间ID）
         # namespace: dev-namespace-id
+      discovery:
+        metadata:
+          # 告诉 Knife4j 这个服务的 OpenAPI 地址
+          swagger-docs-path: /v3/api-docs
+          # 可选：服务分组
+          group: article
   config:
     import:
       - nacos:article-service-dev.yaml

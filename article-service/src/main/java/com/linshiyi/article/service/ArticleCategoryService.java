@@ -7,5 +7,5 @@ public interface ArticleCategoryService {
 
     void createArticleCategory(ArticleCategoryCreateDTO articleCategoryCreateDTO);
 
-    void updateArticleCategory(ArticleCategoryUpdateDTO articleCategoryUpdateDTO);
+    void updateArticleCategory(ArticleCategoryUpdateDTO articleCategoryUpdateDTO, Long id);
 }
