@@ -1,6 +1,5 @@
 package com.linshiyi.article.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import com.linshiyi.article.converter.ArticleMapStruct;
 import com.linshiyi.article.domain.dto.ArticleCreateDTO;
 import com.linshiyi.article.domain.dto.ArticleQueryDTO;
@@ -138,12 +137,6 @@ public class ArticleServiceImpl implements ArticleService {
                 .toList();
 
         return new PageResult<>(total, voList, pageNum, pageSize);
-    }
-
-    private ArticleListVO convertToVO(Article article) {
-        ArticleVO articleVO = new ArticleVO();
-        BeanUtil.copyProperties(article, articleVO);
-        return articleVO;
     }
 
     /**
