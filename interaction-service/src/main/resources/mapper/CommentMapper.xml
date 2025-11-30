@@ -32,22 +32,6 @@
         LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
-    <select id="selectFirstChildComment" resultType="com.linshiyi.interaction.domain.po.Comment">
-        SELECT id,
-               entity_type,
-               entity_id,
-               user_id,
-               parent_id,
-               content,
-               is_deleted,
-               create_time
-        FROM comment
-        WHERE parent_id = #{parentId}
-          AND is_deleted = 0
-        ORDER BY create_time DESC
-        LIMIT 1
-    </select>
-
     <select id="countParentComment" resultType="java.lang.Long">
         SELECT COUNT(1)
         FROM comment
@@ -57,19 +41,38 @@
           AND is_deleted = 0
     </select>
     <select id="countChildComment" resultType="java.lang.Long">
-        SELECT COUNT(*)
-        FROM "comment"
-        WHERE parent_id = #{parentId}
+        SELECT COUNT(*) - 1
+        FROM "comment" c
+                 INNER JOIN comment_closure cc ON c.id = cc.descendant_id
+        WHERE cc.ancestor_id = #{parentId}
           AND is_deleted = 0
     </select>
-    <select id="selectChildCommentWithPaging" resultType="com.linshiyi.interaction.domain.po.Comment">
-        SELECT *
-        FROM "comment"
-        WHERE parent_id = #{parentId}
-          AND is_deleted = 0
-        ORDER BY create_time ASC
+    <select id="selectChildCommentWithPaging" resultType="com.linshiyi.interaction.domain.vo.CommentVO">
+        SELECT c.*, p.user_id AS reply_to_user_id
+        FROM "comment" c
+                 INNER JOIN "comment_closure" cc ON c.id = cc.descendant_id
+                 INNER JOIN "comment" p ON c.parent_id = p.id
+        WHERE cc.ancestor_id = #{parentId}
+          AND c.id != #{parentId}
+          AND c.is_deleted = 0
+        ORDER BY c.create_time ASC
         LIMIT #{pageSize} OFFSET #{offset}
     </select>
-
+    <select id="selectTopNChildCommentsByParentIds" resultType="com.linshiyi.interaction.domain.po.Comment">
+        SELECT id, entity_type, entity_id, user_id, parent_id, content, is_deleted, create_time
+        FROM (
+        SELECT
+        id, entity_type, entity_id, user_id, parent_id, content, is_deleted, create_time,
+        ROW_NUMBER() OVER (PARTITION BY parent_id ORDER BY create_time ASC) as rn
+        FROM comment
+        WHERE parent_id IN
+        <foreach collection="parentIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND is_deleted = 0
+        ) ranked
+        WHERE rn &lt;= #{limitPerParent}
+        ORDER BY parent_id, create_time ASC
+    </select>
 
 </mapper>

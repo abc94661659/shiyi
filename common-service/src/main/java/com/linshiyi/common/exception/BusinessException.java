@@ -13,11 +13,16 @@ public class BusinessException extends RuntimeException {
      * 错误码
      */
     private final Integer code;
+    /**
+     * http 状态码
+     */
+    private final Integer httpStatus;
 
 
     public BusinessException(StatusCodeEnum status, String message) {
         super(message);
         this.code = status.getCode();
+        this.httpStatus = status.getHttpStatus();
     }
 
     /**

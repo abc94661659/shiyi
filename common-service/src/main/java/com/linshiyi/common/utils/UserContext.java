@@ -9,16 +9,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class UserContext {
 
     public static final String HEADER_USER_ID = "X-User-Id";
+    public static final String HEADER_USER_NAME = "X-User-Name";
 
-    public static String getCurrentUserIdStr() {
-        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attrs == null) {
-            throw new IllegalStateException("无法获取当前请求上下文，请确保在 Web 请求线程中调用");
-        }
-        HttpServletRequest request = attrs.getRequest();
-        return request.getHeader(HEADER_USER_ID);
-    }
-    
     public static Long getCurrentUserId() {
         ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attrs == null) {
@@ -36,9 +28,20 @@ public class UserContext {
         try {
             return Long.valueOf(userIdStr);
         } catch (NumberFormatException e) {
-            // 可选：记录 warn 日志，例如：
-            log.warn("Invalid X-User-Id format: {}", userIdStr);
+            log.warn("X-User-Id 格式无效: {}", userIdStr);
             return null;
         }
+    }
+
+    public static String getCurrentUsername() {
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attrs == null) {
+            return null; // 非 Web 环境
+        }
+        String username = attrs.getRequest().getHeader(HEADER_USER_NAME);
+        if (username == null || username.isBlank()) {
+            return null;
+        }
+        return username.trim();
     }
 }

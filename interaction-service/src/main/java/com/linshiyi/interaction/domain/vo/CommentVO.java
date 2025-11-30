@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Schema(description = "评论展示")
@@ -27,8 +28,12 @@ public class CommentVO {
     private Long parentId;
     @Schema(description = "创建时间")
     private LocalDateTime createTime;
+    @Schema(description = "被回复用户id")
+    private Long replyToUserId;
+    @Schema(description = "直接回复目标用户的昵称 (用于 @显示)")
+    private String replyToNickName;
     @Schema(description = "子评论")
-    private CommentVO childComment;
+    private List<CommentVO> childComments;
     @Schema(description = "子评论总数")
     private Integer childCount;
     @Schema(description = "当前用户是否点赞")

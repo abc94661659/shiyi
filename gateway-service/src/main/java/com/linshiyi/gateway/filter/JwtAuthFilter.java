@@ -30,9 +30,6 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     // 不需要验证的路径
     private static final String[] WHITE_LIST = {
             "/doc.html",
-            "/user/v3/api-docs",
-            "/article/v3/api-docs",
-            "/interaction/v3/api-docs",
             "/user/login",
             "/user/register",
             "/article/*",

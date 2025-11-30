@@ -9,6 +9,7 @@ import com.linshiyi.article.domain.vo.ArticleListVO;
 import com.linshiyi.article.domain.vo.ArticleVO;
 import com.linshiyi.article.service.ArticleService;
 import com.linshiyi.common.utils.UserContext;
+import com.linshiyi.core.annotation.LogOperation;
 import com.linshiyi.core.annotation.RequireLogin;
 import com.linshiyi.core.entity.PageResult;
 import com.linshiyi.core.entity.Result;
@@ -31,6 +32,7 @@ public class ArticleController {
     @PostMapping
     @Operation(summary = "新建文章")
     @RequireLogin
+    @LogOperation(resourceType = "文章", operationType = "新建文章", desc = "新建文章《#{#articleCreateDTO.title}》，状态：#{#articleCreateDTO.status == 0 ? '草稿' : '审核中'}")
     public Result<Long> createArticle(@RequestBody @Valid ArticleCreateDTO articleCreateDTO) {
         Long userId = UserContext.getCurrentUserId();
         Long articleId = articleService.createArticle(articleCreateDTO, userId);
@@ -41,10 +43,11 @@ public class ArticleController {
     @PutMapping("/{id}/draft")
     @Operation(summary = "保存草稿")
     @RequireLogin
+    @LogOperation(resourceType = "文章", operationType = "文章保存草稿", desc = "保存草稿id为 #{#id} 的文章")
     public Result<String> updateArticle(@RequestBody @Valid ArticleUpdateDTO articleUpdateDTO, @PathVariable Long id) {
         Long userId = UserContext.getCurrentUserId();
         articleService.updateArticle(articleUpdateDTO, id, userId);
-        return Result.success("更新成功");
+        return Result.success("保存成功");
     }
 
     @GetMapping("/{id}")
@@ -63,6 +66,7 @@ public class ArticleController {
     @PostMapping("/{id}/submit")
     @Operation(summary = "提交审核")
     @RequireLogin
+    @LogOperation(resourceType = "文章", operationType = "文章提交审核", desc = "提交审核id为 #{#id} 的文章")
     public Result<String> submitArticle(@PathVariable Long id) {
         Long userId = UserContext.getCurrentUserId();
         articleService.submitArticle(id, userId);
@@ -72,6 +76,7 @@ public class ArticleController {
     @PostMapping("/{id}/withdraw")
     @Operation(summary = "撤回审核")
     @RequireLogin
+    @LogOperation(resourceType = "文章", operationType = "文章撤回审核", desc = "撤回审核id为 #{#id} 的文章")
     public Result<String> withdrawArticle(@PathVariable Long id) {
         Long userId = UserContext.getCurrentUserId();
         articleService.withdrawArticle(id, userId);
@@ -81,6 +86,7 @@ public class ArticleController {
     @GetMapping("/{id}/draft")
     @Operation(summary = "获取文章草稿")
     @RequireLogin
+    @LogOperation(resourceType = "文章", operationType = "获取文章草稿", desc = "获取文章草稿id为 #{#id} 的文章")
     public Result<ArticleEditVO> getArticleEditInfo(@PathVariable Long id) {
         Long userId = UserContext.getCurrentUserId();
         return Result.success("获取成功", articleService.draftArticle(id, userId));

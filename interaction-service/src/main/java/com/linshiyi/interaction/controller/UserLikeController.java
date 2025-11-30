@@ -1,6 +1,7 @@
 package com.linshiyi.interaction.controller;
 
 import com.linshiyi.common.utils.UserContext;
+import com.linshiyi.core.annotation.LogOperation;
 import com.linshiyi.core.annotation.RequireLogin;
 import com.linshiyi.core.entity.Result;
 import com.linshiyi.interaction.domain.dto.UserLikeDTO;
@@ -22,13 +23,13 @@ public class UserLikeController {
     private final UserLikeService userLikeService;
 
     @RequireLogin
-    @PostMapping()
+    @PostMapping
     @Operation(summary = "点赞/取消点赞")
+    @LogOperation(resourceType = "评论", operationType = "点赞/取消点赞",
+            desc = "点赞/取消点赞了实体id为 #{#userLikeDTO.entityId} 的实体类型 #{#userLikeDTO.entityType}")
     public Result<String> toggleLike(@RequestBody @Valid UserLikeDTO userLikeDTO) {
         Long userId = UserContext.getCurrentUserId();
         userLikeService.toggleLike(userLikeDTO.getEntityType(), userLikeDTO.getEntityId(), userId);
         return Result.success("操作成功");
     }
-
-
 }

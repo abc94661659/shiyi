@@ -2,6 +2,7 @@ package com.linshiyi.interaction.mapper;
 
 import com.linshiyi.interaction.domain.dto.CommentQueryDTO;
 import com.linshiyi.interaction.domain.po.Comment;
+import com.linshiyi.interaction.domain.vo.CommentVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -24,14 +25,6 @@ public interface CommentMapper {
     List<Comment> selectParentComment(@Param("dto") CommentQueryDTO commentQueryDTO,
                                       @Param("offset") int offset,
                                       @Param("pageSize") int pageSize);
-
-    /**
-     * 查询父评论下的第一个子评论
-     *
-     * @param parentId 父评论ID
-     * @return 子评论
-     */
-    Comment selectFirstChildComment(@Param("parentId") Long parentId);
 
 
     /**
@@ -58,7 +51,9 @@ public interface CommentMapper {
      * @param pageSize 每页数量
      * @return 子评论
      */
-    List<Comment> selectChildCommentWithPaging(@Param("parentId") Long parentId,
-                                               @Param("offset") int offset,
-                                               @Param("pageSize") int pageSize);
+    List<CommentVO> selectChildCommentWithPaging(@Param("parentId") Long parentId,
+                                                 @Param("offset") int offset,
+                                                 @Param("pageSize") int pageSize);
+
+    List<Comment> selectTopNChildCommentsByParentIds(@Param("parentIds") List<Long> parentIds, @Param("limitPerParent") int limitPerParent);
 }

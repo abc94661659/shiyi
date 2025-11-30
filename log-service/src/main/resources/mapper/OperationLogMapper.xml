@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.linshiyi.log.mapper.OperationLogMapper">
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into operation_log(user_id, user_name, operation_type, operation_desc, resource_type, resource_id,
+                                  request_method, request_uri, ip_address, user_agent, result_status, error_message)
+        values (#{userId}, #{userName}, #{operationType}, #{operationDesc}, #{resourceType}, #{resourceId},
+                #{requestMethod}, #{requestUri}, #{ipAddress}, #{userAgent}, #{resultStatus}, #{errorMessage})
+    </insert>
+</mapper>

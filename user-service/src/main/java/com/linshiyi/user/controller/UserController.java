@@ -1,6 +1,7 @@
 package com.linshiyi.user.controller;
 
 
+import com.linshiyi.core.annotation.LogOperation;
 import com.linshiyi.core.entity.Result;
 import com.linshiyi.user.domain.dto.UserCreateDTO;
 import com.linshiyi.user.domain.dto.UserLoginDTO;
@@ -24,6 +25,7 @@ public class UserController {
 
     @PostMapping("/register")
     @Operation(summary = "注册用户")
+    @LogOperation(resourceType = "用户", operationType = "用户注册")
     public Result<String> register(@RequestBody @Valid UserCreateDTO userCreateDto) {
         userService.register(userCreateDto);
         return Result.success("注册成功");
@@ -31,6 +33,7 @@ public class UserController {
 
     @PostMapping("/login")
     @Operation(summary = "用户登录")
+    @LogOperation(resourceType = "用户", operationType = "用户登录")
     public Result<String> login(@RequestBody @Valid UserLoginDTO userLoginDTO) {
         String token = userService.login(userLoginDTO);
         return Result.success("登录成功", token);

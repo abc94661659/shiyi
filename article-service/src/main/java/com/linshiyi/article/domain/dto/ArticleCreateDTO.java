@@ -12,13 +12,9 @@ import lombok.Data;
 public class ArticleCreateDTO {
     @Schema(description = "标题")
     @NotBlank(message = "标题不能为空")
-    @Min(value = 1, message = "标题长度不能小于1")
-    @Max(value = 100, message = "标题长度不能大于100")
     private String title;
 
     @Schema(description = "摘要")
-    @Min(value = 1, message = "摘要长度不能小于1")
-    @Max(value = 500, message = "摘要长度不能大于100")
     private String summary;
 
     @Schema(description = "分类ID")
@@ -30,7 +26,6 @@ public class ArticleCreateDTO {
 
     @Schema(description = "文章内容")
     @NotBlank(message = "文章内容不能为空")
-    @Min(value = 1, message = "文章内容长度不能小于1")
     private String content;
 
     @Schema(description = "文章状态")

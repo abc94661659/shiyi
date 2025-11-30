@@ -76,7 +76,6 @@ public class CommentServiceImpl implements CommentService {
         if (pageNum < 1) pageNum = 1;
         if (pageSize < 1 || pageSize > 100) pageSize = 20;
         int offset = Math.max(0, (pageNum - 1) * pageSize);
-        // 父评论总数
         long totalParent = commentMapper.countParentComment(commentQueryDTO);
         List<CommentVO> voList = new ArrayList<>();
 
@@ -85,10 +84,9 @@ public class CommentServiceImpl implements CommentService {
             voList = parentList.stream()
                     .map(commentConverter::toVO)
                     .toList();
-            // 获取所有id，批量获取用户名
             Set<Long> userIds = new HashSet<>();
             List<CommentVO> allComments = new ArrayList<>(voList);
-
+            List<CommentVO> childVOs = new ArrayList<>();
             List<Long> parentIds = voList.stream().map(CommentVO::getId).toList();
             List<Map<String, Object>> childCounts = commentClosureMapper.selectTotalChildCountBatch(parentIds);
             Map<Long, Integer> childCountMap = new HashMap<>();
@@ -97,32 +95,34 @@ public class CommentServiceImpl implements CommentService {
                 int count = ((Number) row.get("child_count")).intValue();
                 childCountMap.put(id, Math.max(0, count - 1));
             }
-            List<CommentVO> childVOs = new ArrayList<>();
+            List<Comment> topChildComments = Collections.emptyList();
+            if (!parentIds.isEmpty()) {
+                topChildComments = commentMapper.selectTopNChildCommentsByParentIds(parentIds, 2);
+            }
+            Map<Long, List<CommentVO>> groupedChildComments = new HashMap<>();
+            for (Comment child : topChildComments) {
+                CommentVO childVO = commentConverter.toVO(child);
+                groupedChildComments.computeIfAbsent(child.getParentId(), k -> new ArrayList<>()).add(childVO);
+                childVOs.add(childVO);
+                userIds.add(childVO.getUserId());
+                allComments.add(childVO);
+            }
             for (CommentVO vo : voList) {
+                Long parentId = vo.getId();
                 userIds.add(vo.getUserId());
-                int childCount = childCountMap.getOrDefault(vo.getId(), 0);
+
+                int childCount = childCountMap.getOrDefault(parentId, 0);
                 vo.setChildCount(childCount);
 
-                if (childCount > 0) {
-                    Comment firstChild = commentMapper.selectFirstChildComment(vo.getId());
-                    if (firstChild != null) {
-                        CommentVO childVO = commentConverter.toVO(firstChild);
-                        vo.setChildComment(childVO);
-                        childVOs.add(childVO);
-                        userIds.add(childVO.getUserId());
-                        allComments.add(childVO);
-                    }
-                }
+
+                vo.setChildComments(groupedChildComments.getOrDefault(parentId, Collections.emptyList()));
             }
             fillUserBriefInfo(allComments);
-
-            batchIsLike("COMMENT", voList, userId);
-            if (!childVOs.isEmpty()) {
-                batchIsLike("COMMENT", childVOs, userId);
-            }
+            List<CommentVO> allCommentVOsForLike = new ArrayList<>(voList);
+            allCommentVOsForLike.addAll(childVOs);
+            batchIsLike("COMMENT", allCommentVOsForLike, userId);
         }
 
-        // 6. 构建自定义分页结果
         return new PageResult<>(totalParent, voList, pageNum, pageSize);
     }
 
@@ -141,23 +141,16 @@ public class CommentServiceImpl implements CommentService {
             return new PageResult<>(0L, Collections.emptyList(), pageNum, pageSize);
         }
         int offset = (pageNum - 1) * pageSize;
-        List<Comment> childComments = commentMapper.selectChildCommentWithPaging(parentId, offset, pageSize);
+        List<CommentVO> childComments = commentMapper.selectChildCommentWithPaging(parentId, offset, pageSize);
         if (childComments.isEmpty()) {
             return new PageResult<>(total, Collections.emptyList(), pageNum, pageSize);
         }
 
-        List<CommentVO> voList = childComments.stream()
-                .map(commentConverter::toVO)
-                .collect(Collectors.toList());
-        Set<Long> userIds = voList.stream()
-                .map(CommentVO::getUserId)
-                .collect(Collectors.toSet());
+        fillUserBriefInfo(childComments);
 
-        fillUserBriefInfo(voList);
+        batchIsLike("COMMENT", childComments, userId);
 
-        batchIsLike("COMMENT", voList, userId);
-
-        return new PageResult<>(total, voList, pageNum, pageSize);
+        return new PageResult<>(total, childComments, pageNum, pageSize);
     }
 
     /**
@@ -209,11 +202,16 @@ public class CommentServiceImpl implements CommentService {
             return;
         }
 
-        Set<Long> userIds = commentVOs.stream()
-                .map(CommentVO::getUserId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-
+        Set<Long> userIds = new HashSet<>();
+        for (CommentVO vo : commentVOs) {
+            if (vo.getUserId() != null) {
+                userIds.add(vo.getUserId());
+            }
+            // 子评论/回复目标的作者ID
+            if (vo.getReplyToUserId() != null) {
+                userIds.add(vo.getReplyToUserId());
+            }
+        }
         Map<Long, UserBriefVO> userBriefMap = new HashMap<>();
         if (!userIds.isEmpty()) {
             try {
@@ -247,6 +245,14 @@ public class CommentServiceImpl implements CommentService {
             } else {
                 comment.setNickName("未知用户");
                 comment.setAvatar("https://example.com/default-avatar.png");
+            }
+            if (comment.getReplyToUserId() != null) {
+                UserBriefVO replyBrief = userBriefMap.get(comment.getReplyToUserId());
+                if (replyBrief != null) {
+                    comment.setReplyToNickName(replyBrief.getNickname());
+                } else {
+                    comment.setReplyToNickName("未知用户");
+                }
             }
         }
     }

@@ -26,6 +26,7 @@
         <module>common-client</module>
         <module>gateway-service</module>
         <module>interaction-service</module>
+        <module>log-service</module>
     </modules>
 
     <properties>
@@ -37,7 +38,6 @@
         <lombok.version>1.18.30</lombok.version>
         <hutool.version>5.8.25</hutool.version>
         <knife4j.version>4.5.0</knife4j.version>
-        <pagehelper.version>1.4.6</pagehelper.version>
         <jjwt.version>0.11.5</jjwt.version>
         <druid.version>1.2.23</druid.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
@@ -95,18 +95,11 @@
                 <version>${hutool.version}</version>
             </dependency>
 
-            <!--  & Knife4j (for Servlet services) -->
+            <!-- Knife4j -->
             <dependency>
                 <groupId>com.github.xiaoymin</groupId>
                 <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
                 <version>${knife4j.version}</version>
-            </dependency>
-
-            <!-- Pagination -->
-            <dependency>
-                <groupId>com.github.pagehelper</groupId>
-                <artifactId>pagehelper-spring-boot-starter</artifactId>
-                <version>${pagehelper.version}</version>
             </dependency>
 
             <!-- JWT -->

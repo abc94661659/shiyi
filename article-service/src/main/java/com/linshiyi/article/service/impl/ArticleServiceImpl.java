@@ -84,7 +84,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
         Integer status = article.getStatus();
         if (ArticleStatusEnum.REVIEWING.getCode().equals(status)) {
-            throw new BusinessException(StatusCodeEnum.AUTH_ERROR, "文章正在审核中，请先撤回提交");
+            throw new BusinessException(StatusCodeEnum.BUSINESS_ERROR, "文章正在审核中，请先撤回提交");
         }
         article.setTitle(dto.getTitle());
         article.setSummary(dto.getSummary());

@@ -24,12 +24,15 @@
             <if test="coverImage != null and coverImage != ''">
                 cover_image = #{coverImage}
             </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
             update_time = #{updateTime}
         </set>
         WHERE id = #{id}
     </update>
     <select id="selectById" resultType="com.linshiyi.article.domain.po.Article">
-        SELECT id, title, summary, category_id, cover_image, author_id
+        SELECT id, title, summary, category_id, cover_image, author_id, status
         FROM article
         WHERE id = #{id}
     </select>
@@ -52,7 +55,8 @@
                a.view_count    AS view_count,
                a.comment_count AS comment_count,
                a.create_time   AS create_time,
-               ac.content      AS content
+               ac.content      AS content,
+               a.status        AS status
         FROM article a
                  INNER JOIN article_content ac ON a.id = ac.article_id
         WHERE a.id = #{id}
